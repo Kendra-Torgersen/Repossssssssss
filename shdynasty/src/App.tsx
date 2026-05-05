@@ -10,16 +10,29 @@ import {
   Avatar,
   Badge,
 } from "@chakra-ui/react";
-import tweetsData from "./data/tweets.json";
 import type { Tweet } from "./types/Tweet";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "./utils/supabase";
 
 function App() {
   //tweets is the current list of tweets shown
   //setTweets is how react updates whats shown
-  //we start with tweets from our json file
+  //we start with no tweets, so we initialize with an empty array
 
-  const [tweets, setTweets] = useState<Tweet[]>(tweetsData as Tweet[])
+  const [tweets, setTweets] = useState<Tweet[]>([])
+  useEffect(() => {
+    async function load() {
+      const { data, error } = await supabase
+        .from("tweets")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) console.error(error);
+      else setTweets(data || []);
+    }
+
+    load();
+  }, []);
 
 
   //input is the current value of the text input
@@ -31,13 +44,13 @@ function App() {
     if(!input.trim()) return;
     const newTweet: Tweet = {
       id: Date.now(),
-      name: "Mack",
-      username: "@mack_codes",
+      name: "Die Harder",
+      username: "@DieHard-DieHarder",
       createdAt: new Date().toISOString(),
       text: input.trim(),
       likes: 0,
       replies: 0,
-      tag: "",
+      tag: "Yippie-Ki-Yay",
     }
     //puts new tweet first
     setTweets([newTweet, ...tweets]);
